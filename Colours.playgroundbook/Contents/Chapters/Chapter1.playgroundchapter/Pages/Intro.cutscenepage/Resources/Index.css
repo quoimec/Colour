@@ -1,0 +1,90 @@
+body
+{
+  width: calc(100% - 40px);
+  padding: 20px 20px 0px 20px;
+  height: calc(100% - 20px);
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  margin: 0px;
+  background: #39CFAE;
+  color: #FFFFFF;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;;
+}
+
+#header {
+  margin-top: 50px;
+}
+
+.header-title {
+  width: 100%;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.header-credit {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.header-divider {
+  width: 100%;
+  height: 2px;
+  background: #FFFFFF;
+  opacity: 0.2;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.content {
+  font-weight: 500;
+  font-size: 22px;
+  padding: 60px;
+  padding-left: 40px;
+  padding-right: 40px;
+  position: absolute;
+  opacity: 0;
+  padding-top: 90px;
+}
+
+.buttons {
+  width: 300px;
+  height: 100px;
+  position: absolute;
+  bottom: 40px;
+  margin-left: calc(50% - 150px);
+  opacity: 0.0;
+}
+
+#left-button {
+  width: 100px;
+  height: 100px;
+  float: left;
+  opacity: 0.4;
+  margin-left: 20px;
+}
+
+#right-button {
+  width: 100px;
+  height: 100px;
+  float: right;
+  opacity: 1.0;
+  margin-right: 20px;
+}
+
+#cracking-button {
+  display: none;
+  width: 260px;
+  height: 100px;
+  margin-left: 20px;
+  float: left;
+}
+
+.cracking-button {
+  width: 260px;
+  height: 100px;
+  opacity: 0.0;
+  float: left;
+}
