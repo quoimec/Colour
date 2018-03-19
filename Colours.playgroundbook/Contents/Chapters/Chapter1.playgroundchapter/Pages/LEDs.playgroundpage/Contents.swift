@@ -1,16 +1,25 @@
 /*:
-  	To the right are three LED lights.
+ ### Welcome!
 
-  	Try changing the values of the `updateRed`, `updateGreen` and `updateBlue` functions below and then running the playground again to see what happens.
-  */
+ As you've just read, every single pixel on your screen is made up of a red light, a green light, and a blue light. This exercise will help you understand how your screen mixes those lights to make new colours.
+
+
+ * callout(Run the playground):
+ If you're on an iPad, you'll need to run the playground before you can see anything.
+
+
+ Once you've run the playground you should see three lights. They represent one pixel in your screen.
+
+ Below that is a yellowish square. This is where the three lights will output the colour they combine to make.
+
+ Alright! Let's get coding. If you look below you should see three functions: `updateRed`, `updateGreen`, and `updateBlue`. Each of these functions will change the brightness of the corresponding light. If you want to turn a light off, set the number to `0.0`. If you want a light to be as bright as possible, set it to `1.0`.
+
+
+ * callout(Accepted values):
+ Technically, the update functions will accept any number as input but for our purposes anything greater than `1.0` will be rounded back down to `1.0` and the inverse goes for `0.0`. Safety first y'all!
+
+*/
 //#-hidden-code
-
-
-//  Change properties of `theView` and run the playground.
-//  Try modifying:
-//  * `CGColor`: `markColor` and `backgroundColor`
-//  * `Bool`: `isChecked`
-//  * `CGFloat`: `strokeFactor`, `insetFactor`, and `markInsetFactor`
 
 import UIKit
 import PlaygroundSupport
@@ -143,7 +152,7 @@ class PageTwo: UIView {
 		colourSquare.layer.cornerRadius = 16.0
 		
 		colourLabel.text = "Colour Result:"
-		colourLabel.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
+		colourLabel.font = UIFont.boldSystemFont(ofSize: 20)
 		colourLabel.textColor = UIColor(red: 0.20, green: 0.20, blue: 0.20, alpha: 1.00)
 		colourLabel.textAlignment = .center
 		
@@ -181,7 +190,7 @@ class PageTwo: UIView {
 			
 			// Colour Square
 			NSLayoutConstraint(item: colourSquare, attribute: .centerX, relatedBy: .equal, toItem: self, attribute: .centerX, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: colourSquare, attribute: .top, relatedBy: .equal, toItem: greenLight, attribute: .bottom, multiplier: 1.0, constant: 60),
+			NSLayoutConstraint(item: colourSquare, attribute: .top, relatedBy: .equal, toItem: greenLight, attribute: .bottom, multiplier: 1.0, constant: 80),
 			NSLayoutConstraint(item: colourSquare, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 250),
 			NSLayoutConstraint(item: colourSquare, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 250),
 			
@@ -202,71 +211,69 @@ class PageTwo: UIView {
 
 let pageTwoView = PageTwo()
 
-func updateRed(colourValue: Double) {
+func updateRed(lightBrightness: Double) {
 
-	if colourValue > 1.00 {
+	if lightBrightness > 1.00 {
 		pageTwoView.redLight.colourValue = 1.00
 		pageTwoView.redLight.lightLayer.fillColor = UIColor(red: 1.00, green: 0.00, blue: 0.00, alpha: 1.00).cgColor
-	} else if colourValue < 0.00 {
+	} else if lightBrightness < 0.00 {
 		pageTwoView.redLight.colourValue = 0.00
 		pageTwoView.redLight.lightLayer.fillColor = UIColor(red: 0.00, green: 0.00, blue: 0.00, alpha: 1.00).cgColor
 	} else {
-		pageTwoView.redLight.colourValue = colourValue
-		pageTwoView.redLight.lightLayer.fillColor = UIColor(red: CGFloat(colourValue), green: 0.00, blue: 0.00, alpha: 1.00).cgColor
+		pageTwoView.redLight.colourValue = lightBrightness
+		pageTwoView.redLight.lightLayer.fillColor = UIColor(red: CGFloat(lightBrightness), green: 0.00, blue: 0.00, alpha: 1.00).cgColor
 	}
 
 }
 
-func updateGreen(colourValue: Double) {
+func updateGreen(lightBrightness: Double) {
 
-	if colourValue > 1.00 {
+	if lightBrightness > 1.00 {
 		pageTwoView.greenLight.colourValue = 1.00
 		pageTwoView.greenLight.lightLayer.fillColor = UIColor(red: 0.00, green: 1.00, blue: 0.00, alpha: 1.00).cgColor
-	} else if colourValue < 0.00 {
+	} else if lightBrightness < 0.00 {
 		pageTwoView.greenLight.colourValue = 0.00
 		pageTwoView.greenLight.lightLayer.fillColor = UIColor(red: 0.00, green: 0.00, blue: 0.00, alpha: 1.00).cgColor
 	} else {
-		pageTwoView.greenLight.colourValue = colourValue
-		pageTwoView.greenLight.lightLayer.fillColor = UIColor(red: 0.00, green: CGFloat(colourValue), blue: 0.00, alpha: 1.00).cgColor
+		pageTwoView.greenLight.colourValue = lightBrightness
+		pageTwoView.greenLight.lightLayer.fillColor = UIColor(red: 0.00, green: CGFloat(lightBrightness), blue: 0.00, alpha: 1.00).cgColor
 	}
 
 }
 
-func updateBlue(colourValue: Double) {
+func updateBlue(lightBrightness: Double) {
 
-	if colourValue > 1.00 {
+	if lightBrightness > 1.00 {
 		pageTwoView.blueLight.colourValue = 1.00
 		pageTwoView.blueLight.lightLayer.fillColor = UIColor(red: 0.00, green: 0.00, blue: 0.00, alpha: 1.00).cgColor
-	} else if colourValue < 0.00 {
+	} else if lightBrightness < 0.00 {
 		pageTwoView.blueLight.colourValue = 0.00
 		pageTwoView.blueLight.lightLayer.fillColor = UIColor(red: 0.00, green: 0.00, blue: 0.00, alpha: 1.00).cgColor
 	} else {
-		pageTwoView.blueLight.colourValue = colourValue
-		pageTwoView.blueLight.lightLayer.fillColor = UIColor(red: 0.00, green: 0.00, blue: CGFloat(colourValue), alpha: 1.00).cgColor
+		pageTwoView.blueLight.colourValue = lightBrightness
+		pageTwoView.blueLight.lightLayer.fillColor = UIColor(red: 0.00, green: 0.00, blue: CGFloat(lightBrightness), alpha: 1.00).cgColor
 	}
 
 }
 
-PlaygroundPage.current.needsIndefiniteExecution = true
 PlaygroundPage.current.liveView = pageTwoView
 
 //#-end-hidden-code
 
-//#-editable-code
+updateRed(lightBrightness: /*#-editable-code*/0.99/*#-end-editable-code*/)
+updateGreen(lightBrightness: /*#-editable-code*/0.82/*#-end-editable-code*/)
+updateBlue(lightBrightness: /*#-editable-code*/0.44/*#-end-editable-code*/)
 
-updateRed(colourValue: 0.10)
-updateGreen(colourValue: 0.38)
-updateBlue(colourValue: 0.88)
-
-//#-end-editable-code
-
+/*:
+ #### Exercises
+ * Can you make our pixel output purple? What about light blue?
+ * What happens when you set all three values to `1.0`? What about `0.0`?
+ * What combination of numbers do you need to make a murky brown colour?
+*/
 //#-hidden-code
 
 pageTwoView.colourSquare.backgroundColor = UIColor(red: CGFloat(pageTwoView.redLight.colourValue), green: CGFloat(pageTwoView.greenLight.colourValue), blue: CGFloat(pageTwoView.blueLight.colourValue), alpha: 1.00)
 
 //#-end-hidden-code
-
-
-
 
 
