@@ -18,13 +18,13 @@ body
 
 .header-title {
   width: 100%;
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 700;
 }
 
 .header-credit {
   width: 100%;
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 400;
   opacity: 0.7;
 }

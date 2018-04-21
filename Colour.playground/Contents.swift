@@ -1,454 +1,490 @@
-//: A UIKit based Playground for presenting user interface
-  
 import UIKit
-import AVFoundation
+import Foundation
 import PlaygroundSupport
 
-class ActionButton: UIView {
+enum setColour {
+	
+	// Enumeration of the three colours of LED light.
 
-	let actionIcon = UIImageView()
-
-	init() {
-		super.init(frame: CGRect.zero)
-		
-		actionIcon.translatesAutoresizingMaskIntoConstraints = false
-		
-		self.addSubview(actionIcon)
-		
-		self.backgroundColor = UIColor.red
-		//self.layer.cornerRadius = CGFloat(50)
-		self.layer.shadowPath = UIBezierPath(rect: self.layer.bounds).cgPath
-		self.layer.shadowColor = UIColor.black.cgColor
-		self.layer.shadowOpacity = 0.1
-		self.layer.shadowRadius = CGFloat(100)
-		
-		self.addConstraints([
-			NSLayoutConstraint(item: actionIcon, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 10),
-			NSLayoutConstraint(item: actionIcon, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 10),
-			NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: actionIcon, attribute: .trailing, multiplier: 1.0, constant: 10),
-			NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: actionIcon, attribute: .bottom, multiplier: 1.0, constant: 10)
-		])
-	
-	}
-	
-	required init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
-	
+    case Red, Green, Blue
 }
 
-class ActionBar: UIView {
+class SmallLED: UIView {
 
-	let linkButton = ActionButton()
-	let cameraButton = ActionButton()
-	let photoButton = ActionButton()
-	let buttonSize = CGFloat(60)
-
-	init() {
-		super.init(frame: CGRect.zero)
+	var colourBase: setColour
+    var scaleFactor = 4.0
+	
+    var lightLayer = CAShapeLayer()
+    var innerLayer = CAShapeLayer()
+    var baseLayer = CAShapeLayer()
+    var prongsLayer = CAShapeLayer()
+	
+    init(colourBase: setColour) {
+        self.colourBase = colourBase
+        super.init(frame: CGRect(x: 0, y: 0, width: 100 / scaleFactor, height: 200 / scaleFactor))
 		
-		linkButton.translatesAutoresizingMaskIntoConstraints = false
-		cameraButton.translatesAutoresizingMaskIntoConstraints = false
-		photoButton.translatesAutoresizingMaskIntoConstraints = false
+        let lightPath = UIBezierPath()
+        lightPath.move(to: CGPoint(x: 7 / scaleFactor, y: 136 / scaleFactor))
+        lightPath.addLine(to: CGPoint(x: 7 / scaleFactor, y: 45 / scaleFactor))
+        lightPath.addCurve(to: CGPoint(x: 37 / scaleFactor, y: 15 / scaleFactor), controlPoint1: CGPoint(x: 7 / scaleFactor, y: 28 / scaleFactor), controlPoint2: CGPoint(x: 20 / scaleFactor, y: 15 / scaleFactor))
+        lightPath.addLine(to: CGPoint(x: 63 / scaleFactor, y: 15 / scaleFactor))
+        lightPath.addCurve(to: CGPoint(x: 93 / scaleFactor, y: 45 / scaleFactor), controlPoint1: CGPoint(x: 80 / scaleFactor, y: 15 / scaleFactor), controlPoint2: CGPoint(x: 93 / scaleFactor, y: 28 / scaleFactor))
+        lightPath.addLine(to: CGPoint(x: 93 / scaleFactor, y: 136 / scaleFactor))
+        lightPath.addLine(to: CGPoint(x: 7 / scaleFactor, y: 136 / scaleFactor))
+        lightPath.close()
 		
-		self.addSubview(linkButton)
-		self.addSubview(cameraButton)
-		self.addSubview(photoButton)
-
-		self.addConstraints([
-
-			// Link Button
-			NSLayoutConstraint(item: linkButton, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: linkButton, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: linkButton, attribute: .bottom, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: linkButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: buttonSize),
-			NSLayoutConstraint(item: linkButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: buttonSize),
-
-			// Camera Button
-			NSLayoutConstraint(item: cameraButton, attribute: .leading, relatedBy: .equal, toItem: linkButton, attribute: .trailing, multiplier: 1.0, constant: 50),
-			NSLayoutConstraint(item: cameraButton, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: cameraButton, attribute: .bottom, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: cameraButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: buttonSize),
-			NSLayoutConstraint(item: cameraButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: buttonSize),
-
-			// Photo Button
-			NSLayoutConstraint(item: photoButton, attribute: .leading, relatedBy: .equal, toItem: cameraButton, attribute: .trailing, multiplier: 1.0, constant: 50),
-			NSLayoutConstraint(item: photoButton, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: photoButton, attribute: .trailing, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: photoButton, attribute: .bottom, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: photoButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: buttonSize),
-			NSLayoutConstraint(item: photoButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: buttonSize)
-
-		])
-	
-	}
-	
-	required init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
-
-}
-
-class InfoBar: UIView {
-
-	let infoLabel = UILabel()
-
-	init() {
-		super.init(frame: CGRect.zero)
-	
-	}
-	
-	required init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
-
-}
-
-struct ColourSample {
-	
-	var redSample: CGFloat
-	var greenSample: CGFloat
-	var blueSample: CGFloat
-	var colourValue: UIColor
-	
-	init(redSample: CGFloat, greenSample: CGFloat, blueSample: CGFloat) {
-	
-		self.redSample = redSample
-		self.blueSample = blueSample
-		self.greenSample = greenSample
+        let innerPath = UIBezierPath()
+        innerPath.move(to: CGPoint(x: 26 / scaleFactor, y: 132 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 26 / scaleFactor, y: 128 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 23 / scaleFactor, y: 128 / scaleFactor))
+        innerPath.addCurve(to: CGPoint(x: 20 / scaleFactor, y: 125 / scaleFactor), controlPoint1: CGPoint(x: 21 / scaleFactor, y: 128 / scaleFactor), controlPoint2: CGPoint(x: 20 / scaleFactor, y: 127 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 20 / scaleFactor, y: 119 / scaleFactor))
+        innerPath.addCurve(to: CGPoint(x: 23 / scaleFactor, y: 116 / scaleFactor), controlPoint1: CGPoint(x: 20 / scaleFactor, y: 117 / scaleFactor), controlPoint2: CGPoint(x: 21 / scaleFactor, y: 116 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 75 / scaleFactor, y: 116 / scaleFactor))
+        innerPath.addCurve(to: CGPoint(x: 78 / scaleFactor, y: 119 / scaleFactor), controlPoint1: CGPoint(x: 77 / scaleFactor, y: 116 / scaleFactor), controlPoint2: CGPoint(x: 78 / scaleFactor, y: 117 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 78 / scaleFactor, y: 125 / scaleFactor))
+        innerPath.addCurve(to: CGPoint(x: 75 / scaleFactor, y: 128 / scaleFactor), controlPoint1: CGPoint(x: 78 / scaleFactor, y: 127 / scaleFactor), controlPoint2: CGPoint(x: 77 / scaleFactor, y: 128 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 72 / scaleFactor, y: 128 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 72 / scaleFactor, y: 132 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 60 / scaleFactor, y: 132 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 60 / scaleFactor, y: 128 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 38 / scaleFactor, y: 128 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 38 / scaleFactor, y: 132 / scaleFactor))
+        innerPath.addLine(to: CGPoint(x: 26 / scaleFactor, y: 132 / scaleFactor))
+        innerPath.close()
 		
-		self.colourValue = UIColor(red: redSample, green: greenSample, blue: blueSample, alpha: 1.0)
-
-	}
+        let basePath = UIBezierPath()
+        basePath.move(to: CGPoint(x: 4 / scaleFactor, y: 141 / scaleFactor))
+        basePath.addLine(to: CGPoint(x: 4 / scaleFactor, y: 135 / scaleFactor))
+        basePath.addCurve(to: CGPoint(x: 7 / scaleFactor, y: 132 / scaleFactor), controlPoint1: CGPoint(x: 4 / scaleFactor, y: 133 / scaleFactor), controlPoint2: CGPoint(x: 6 / scaleFactor, y: 132 / scaleFactor))
+        basePath.addLine(to: CGPoint(x: 93 / scaleFactor, y: 132 / scaleFactor))
+        basePath.addCurve(to: CGPoint(x: 96 / scaleFactor, y: 135 / scaleFactor), controlPoint1: CGPoint(x: 95 / scaleFactor, y: 132 / scaleFactor), controlPoint2: CGPoint(x: 96 / scaleFactor, y: 134 / scaleFactor))
+        basePath.addLine(to: CGPoint(x: 96 / scaleFactor, y: 141 / scaleFactor))
+        basePath.addLine(to: CGPoint(x: 4 / scaleFactor, y: 141 / scaleFactor))
+        basePath.close()
+		
+        let prongsPath = UIBezierPath()
+        prongsPath.move(to: CGPoint(x: 26 / scaleFactor, y: 141 / scaleFactor))
+        prongsPath.addLine(to: CGPoint(x: 26 / scaleFactor, y: 189 / scaleFactor))
+        prongsPath.addCurve(to: CGPoint(x: 28 / scaleFactor, y: 191 / scaleFactor), controlPoint1: CGPoint(x: 26 / scaleFactor, y: 190 / scaleFactor), controlPoint2: CGPoint(x: 27 / scaleFactor, y: 191 / scaleFactor))
+        prongsPath.addLine(to: CGPoint(x: 36 / scaleFactor, y: 191 / scaleFactor))
+        prongsPath.addCurve(to: CGPoint(x: 38 / scaleFactor, y: 189 / scaleFactor), controlPoint1: CGPoint(x: 37 / scaleFactor, y: 191 / scaleFactor), controlPoint2: CGPoint(x: 38 / scaleFactor, y: 190 / scaleFactor))
+        prongsPath.addLine(to: CGPoint(x: 38 / scaleFactor, y: 141 / scaleFactor))
+        prongsPath.addLine(to: CGPoint(x: 26 / scaleFactor, y: 141 / scaleFactor))
+        prongsPath.move(to: CGPoint(x: 60 / scaleFactor, y: 141 / scaleFactor))
+        prongsPath.addLine(to: CGPoint(x: 60 / scaleFactor, y: 189 / scaleFactor))
+        prongsPath.addCurve(to: CGPoint(x: 62 / scaleFactor, y: 191 / scaleFactor), controlPoint1: CGPoint(x: 60 / scaleFactor, y: 190 / scaleFactor), controlPoint2: CGPoint(x: 61 / scaleFactor, y: 191 / scaleFactor))
+        prongsPath.addLine(to: CGPoint(x: 70 / scaleFactor, y: 191 / scaleFactor))
+        prongsPath.addCurve(to: CGPoint(x: 72 / scaleFactor, y: 189 / scaleFactor), controlPoint1: CGPoint(x: 71 / scaleFactor, y: 191 / scaleFactor), controlPoint2: CGPoint(x: 72 / scaleFactor, y: 190 / scaleFactor))
+        prongsPath.addLine(to: CGPoint(x: 72 / scaleFactor, y: 141 / scaleFactor))
+        prongsPath.addLine(to: CGPoint(x: 70 / scaleFactor, y: 141 / scaleFactor))
+        prongsPath.close
+		
+        lightLayer.path = lightPath.cgPath
+        innerLayer.path = innerPath.cgPath
+        baseLayer.path = basePath.cgPath
+        prongsLayer.path = prongsPath.cgPath
+		
+        innerLayer.fillColor = UIColor(red: 0.19, green: 0.19, blue: 0.19, alpha: 0.54).cgColor
+        baseLayer.fillColor = UIColor(red: 0.24, green: 0.24, blue: 0.24, alpha: 1.00).cgColor
+        prongsLayer.fillColor = UIColor(red: 0.82, green: 0.82, blue: 0.82, alpha: 1.00).cgColor
+		
+        switch colourBase {
+			
+            case .Red:
+                lightLayer.fillColor = UIColor(red: 0.20, green: 0.00, blue: 0.00, alpha: 1.00).cgColor
+			
+            case .Green:
+                lightLayer.fillColor = UIColor(red: 0.00, green: 0.20, blue: 0.00, alpha: 1.00).cgColor
+			
+            case .Blue:
+                lightLayer.fillColor = UIColor(red: 0.00, green: 0.00, blue: 0.20, alpha: 1.00).cgColor
+			
+        }
+		
+        self.layer.addSublayer(lightLayer)
+        self.layer.addSublayer(innerLayer)
+        self.layer.addSublayer(baseLayer)
+        self.layer.addSublayer(prongsLayer)
+		
+    }
+	
+    required public init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
 }
 
-class ColourGraphOne: UIView {
+class ColourOutput: UIView {
 
-	let GraphTitle = UILabel()
-	let SwatchContainer = UIView()
-	let LineContainer = UIView()
-	let GraphZero = UILabel()
-	let GraphOne = UILabel()
+	var redLED = SmallLED(colourBase: .Red)
+	var greenLED = SmallLED(colourBase: .Green)
+	var blueLED = SmallLED(colourBase: .Blue)
+	var wireLayer = CAShapeLayer()
+	var outputLayer = CAShapeLayer()
+	let redLabel = UILabel()
+    let greenLabel = UILabel()
+    let blueLabel = UILabel()
 	
-	init() {
-		super.init(frame: CGRect.zero)
-	
-		self.backgroundColor = UIColor.white
+    init() {
+        super.init(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
 		
-		GraphTitle.text = "Random Swatches"
-		GraphTitle.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-		GraphTitle.textColor = UIColor(red: 0.20, green: 0.20, blue: 0.20, alpha: 1.00)
+		redLabel.text = ""
+		greenLabel.text = ""
+		blueLabel.text = ""
+		redLabel.font = UIFont.boldSystemFont(ofSize: 12)
+		greenLabel.font = UIFont.boldSystemFont(ofSize: 12)
+		blueLabel.font = UIFont.boldSystemFont(ofSize: 12)
+		redLabel.textColor = UIColor(red: 0.71, green: 0.16, blue: 0.12, alpha: 1.00)
+		greenLabel.textColor = UIColor(red: 0.26, green: 0.81, blue: 0.68, alpha: 1.00)
+		blueLabel.textColor = UIColor(red: 0.26, green: 0.69, blue: 0.97, alpha: 1.00)
 		
-		GraphZero.text = "0"
-		GraphOne.text = "1"
-		GraphZero.font = UIFont.systemFont(ofSize: 6, weight: .heavy)
-		GraphOne.font = UIFont.systemFont(ofSize: 6, weight: .heavy)
-		GraphZero.textColor = UIColor(red: 0.60, green: 0.60, blue: 0.60, alpha: 1.00)
-		GraphOne.textColor = UIColor(red: 0.60, green: 0.60, blue: 0.60, alpha: 1.00)
-		GraphZero.textAlignment = .center
-		GraphOne.textAlignment = .center
+		let wirePath = UIBezierPath()
+		wirePath.move(to: CGPoint(x: 40, y: 44))
+		wirePath.addLine(to: CGPoint(x: 10, y: 44))
+		wirePath.addCurve(to: CGPoint(x: 10, y: 54), controlPoint1: CGPoint(x: 0, y: 44), controlPoint2: CGPoint(x: 0, y: 54))
+		wirePath.addLine(to: CGPoint(x: 40, y: 54))
+		wirePath.addCurve(to: CGPoint(x: 50, y: 64), controlPoint1: CGPoint(x: 45, y: 54), controlPoint2: CGPoint(x: 50, y: 59))
+		wirePath.addLine(to: CGPoint(x: 50, y: 94))
+		wirePath.addCurve(to: CGPoint(x: 40, y: 104), controlPoint1: CGPoint(x: 50, y: 99), controlPoint2: CGPoint(x: 45, y: 104))
+		wirePath.addLine(to: CGPoint(x: 10, y: 104))
+		wirePath.addCurve(to: CGPoint(x: 10, y: 114), controlPoint1: CGPoint(x: 0, y: 104), controlPoint2: CGPoint(x: 0, y: 114))
+		wirePath.addLine(to: CGPoint(x: 40, y: 114))
+		wirePath.addCurve(to: CGPoint(x: 50, y: 124), controlPoint1: CGPoint(x: 45, y: 114), controlPoint2: CGPoint(x: 50, y: 119))
+		wirePath.addLine(to: CGPoint(x: 50, y: 154))
+		wirePath.addCurve(to: CGPoint(x: 40, y: 164), controlPoint1: CGPoint(x: 50, y: 159), controlPoint2: CGPoint(x: 45, y: 164))
+		wirePath.addLine(to: CGPoint(x: 10, y: 164))
+		wirePath.addCurve(to: CGPoint(x: 10, y: 174), controlPoint1: CGPoint(x: 0, y: 164), controlPoint2: CGPoint(x: 0, y: 174))
+		wirePath.addLine(to: CGPoint(x: 60, y: 174))
+		wirePath.addLine(to: CGPoint(x: 60, y: 44))
+		wirePath.addLine(to: CGPoint(x: 40, y: 44))
+		wirePath.close()
 		
-		SwatchContainer.backgroundColor = UIColor.green
-		LineContainer.backgroundColor = UIColor.white
+		let outputPath = UIBezierPath()
+		outputPath.move(to: CGPoint(x: 60, y: 44))
+		outputPath.addLine(to: CGPoint(x: 60, y: 174))
+		outputPath.addLine(to: CGPoint(x: 180, y: 174))
+		outputPath.addCurve(to: CGPoint(x: 190, y: 164), controlPoint1: CGPoint(x: 185, y: 174), controlPoint2: CGPoint(x: 190, y: 169))
+		outputPath.addLine(to: CGPoint(x: 190, y: 54))
+		outputPath.addCurve(to: CGPoint(x: 180, y: 44), controlPoint1: CGPoint(x: 190, y: 49), controlPoint2: CGPoint(x: 185, y: 44))
+		outputPath.addLine(to: CGPoint(x: 60, y: 44))
 		
-		GraphTitle.translatesAutoresizingMaskIntoConstraints = false
-		SwatchContainer.translatesAutoresizingMaskIntoConstraints = false
-		LineContainer.translatesAutoresizingMaskIntoConstraints = false
+		wireLayer.path = wirePath.cgPath
+		wireLayer.fillColor = UIColor(red: 0.20, green: 0.20, blue: 0.20, alpha: 1.00).cgColor
 		
-		self.addSubview(GraphTitle)
-		self.addSubview(SwatchContainer)
-		self.addSubview(LineContainer)
+		outputLayer.path = outputPath.cgPath
+		outputLayer.fillColor = UIColor(red: 0.20, green: 0.20, blue: 0.20, alpha: 1.00).cgColor
 		
-		self.addConstraints([
+		self.layer.addSublayer(wireLayer)
+		self.layer.addSublayer(outputLayer)
 		
-			// Graph Title
-			NSLayoutConstraint(item: GraphTitle, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 10),
-			NSLayoutConstraint(item: GraphTitle, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 10),
-			NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: GraphTitle, attribute: .trailing, multiplier: 1.0, constant: 10),
-			NSLayoutConstraint(item: GraphTitle, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 34),
-			
-			// Swatch Container
-			NSLayoutConstraint(item: SwatchContainer, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: SwatchContainer, attribute: .top, relatedBy: .equal, toItem: GraphTitle, attribute: .bottom, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: SwatchContainer, attribute: .trailing, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: SwatchContainer, attribute: .height, relatedBy: .equal, toItem: SwatchContainer, attribute: .width, multiplier: 0.125, constant: 0),
-			
-			
-			// Line Container
-			NSLayoutConstraint(item: LineContainer, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: LineContainer, attribute: .top, relatedBy: .equal, toItem: SwatchContainer, attribute: .bottom, multiplier: 1.0, constant: 10),
-			NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: LineContainer, attribute: .trailing, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: LineContainer, attribute: .bottom, multiplier: 1.0, constant: 10),
-			NSLayoutConstraint(item: LineContainer, attribute: .height, relatedBy: .equal, toItem: LineContainer, attribute: .width, multiplier: 0.125, constant: 0)
-			
-			
-		])
+		redLED.translatesAutoresizingMaskIntoConstraints = false
+		greenLED.translatesAutoresizingMaskIntoConstraints = false
+		blueLED.translatesAutoresizingMaskIntoConstraints = false
+		redLabel.translatesAutoresizingMaskIntoConstraints = false
+        greenLabel.translatesAutoresizingMaskIntoConstraints = false
+        blueLabel.translatesAutoresizingMaskIntoConstraints = false
 		
-	}
-	
-	required init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
-
-	func createSwatches(colourData: [ColourSample]) {
-	
-		print("Create Swatches")
-	
-		let swatchSize = self.frame.width / CGFloat(colourData.count)
-		let startingX = swatchSize / 2
-		
-		let graphLayer = CAShapeLayer()
-		let redLayer = CAShapeLayer()
-		let greenLayer = CAShapeLayer()
-		let blueLayer = CAShapeLayer()
-		
-		var graphLine = UIBezierPath()
-		var redLine = UIBezierPath()
-		var greenLine = UIBezierPath()
-		var blueLine = UIBezierPath()
-		
-		for i in 0..<colourData.count {
-		
-			let eachSwatch = UIView(frame: CGRect(x: swatchSize * CGFloat(i), y: 0, width: swatchSize, height: swatchSize))
-			eachSwatch.backgroundColor = colourData[i].colourValue
-			SwatchContainer.addSubview(eachSwatch)
-			
-			if i == 0 {
-				redLine.move(to: CGPoint(x: startingX, y: swatchSize - (colourData[0].redSample * swatchSize)))
-				greenLine.move(to: CGPoint(x: startingX, y: swatchSize - (colourData[0].greenSample * swatchSize)))
-				blueLine.move(to: CGPoint(x: startingX, y: swatchSize - (colourData[0].blueSample * swatchSize)))
-			} else {
-				redLine.addLine(to: CGPoint(x: startingX + (swatchSize * CGFloat(i)), y: swatchSize - (colourData[i].redSample * swatchSize)))
-				greenLine.addLine(to: CGPoint(x: startingX + (swatchSize * CGFloat(i)), y: swatchSize - (colourData[i].greenSample * swatchSize)))
-				blueLine.addLine(to: CGPoint(x: startingX + (swatchSize * CGFloat(i)), y: swatchSize - (colourData[i].blueSample * swatchSize)))
-			}
-	
-		}
-		
-		GraphZero.frame = CGRect(x: 0, y: swatchSize - 10, width: startingX, height: 10)
-		GraphOne.frame = CGRect(x: 0, y: 0, width: startingX, height: 10)
-		
-		graphLine.move(to: CGPoint(x: startingX, y: 0))
-		graphLine.addLine(to: CGPoint(x: startingX, y: swatchSize))
-		graphLine.addLine(to: CGPoint(x: self.frame.width - startingX, y: swatchSize))
-		
-		graphLayer.path = graphLine.cgPath
-		graphLayer.strokeColor = UIColor(red: 0.20, green: 0.20, blue: 0.20, alpha: 0.40).cgColor
-		graphLayer.fillColor = UIColor.clear.cgColor
-		graphLayer.lineWidth = 1.0
-		
-		redLayer.path = redLine.cgPath
-		redLayer.strokeColor = UIColor.red.cgColor
-		redLayer.fillColor = UIColor.clear.cgColor
-		redLayer.lineWidth = 2.0
-		
-		greenLayer.path = greenLine.cgPath
-		greenLayer.strokeColor = UIColor.green.cgColor
-		greenLayer.fillColor = UIColor.clear.cgColor
-		greenLayer.lineWidth = 2.0
-		
-		blueLayer.path = blueLine.cgPath
-		blueLayer.strokeColor = UIColor.blue.cgColor
-		blueLayer.fillColor = UIColor.clear.cgColor
-		blueLayer.lineWidth = 2.0
-		
-		LineContainer.layer.sublayers = [graphLayer]
-		LineContainer.layer.addSublayer(redLayer)
-		LineContainer.layer.addSublayer(greenLayer)
-		LineContainer.layer.addSublayer(blueLayer)
-		
-		if LineContainer.subviews.count == 0 {
-			LineContainer.addSubview(GraphZero)
-			LineContainer.addSubview(GraphOne)
-		} else {
-			print("Helloooo")
-		}
-		
-	}
-
-}
-
-class ColourScroll: UIScrollView {
-
-	let graphOne = ColourGraphOne()
-	let graphTwo = ColourGraphOne()
-	let graphThree = ColourGraphOne()
-	
-	init() {
-		super.init(frame: CGRect.zero)
-		
-		self.backgroundColor = UIColor.orange
-		self.isScrollEnabled = true
-		
-		graphOne.translatesAutoresizingMaskIntoConstraints = false
-		graphTwo.translatesAutoresizingMaskIntoConstraints = false
-		graphThree.translatesAutoresizingMaskIntoConstraints = false
-		
-		self.addSubview(graphOne)
-		self.addSubview(graphTwo)
-		self.addSubview(graphThree)
+		self.addSubview(redLED)
+		self.addSubview(greenLED)
+		self.addSubview(blueLED)
+		self.addSubview(redLabel)
+        self.addSubview(greenLabel)
+		self.addSubview(blueLabel)
 		
 		self.addConstraints([
 		
-			// Graph One
-			NSLayoutConstraint(item: graphOne, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: graphOne, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: graphOne, attribute: .trailing, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: graphOne, attribute: .width, relatedBy: .equal, toItem: self, attribute: .width, multiplier: 1.0, constant: 0),
+			// Red LED
+			NSLayoutConstraint(item: redLED, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: redLED, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: redLED, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 25),
+			NSLayoutConstraint(item: redLED, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 50),
 			
-			// Graph Two
-			NSLayoutConstraint(item: graphTwo, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: graphTwo, attribute: .top, relatedBy: .equal, toItem: graphOne, attribute: .bottom, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: graphTwo, attribute: .trailing, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: graphTwo, attribute: .width, relatedBy: .equal, toItem: self, attribute: .width, multiplier: 1.0, constant: 0),
+			// Green LED
+			NSLayoutConstraint(item: greenLED, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: greenLED, attribute: .top, relatedBy: .equal, toItem: redLED, attribute: .bottom, multiplier: 1.0, constant: 10),
+			NSLayoutConstraint(item: greenLED, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 25),
+			NSLayoutConstraint(item: greenLED, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 50),
 			
-			// Graph Three
-			NSLayoutConstraint(item: graphThree, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: graphThree, attribute: .top, relatedBy: .equal, toItem: graphTwo, attribute: .bottom, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: graphThree, attribute: .trailing, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: graphThree, attribute: .bottom, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: graphThree, attribute: .width, relatedBy: .equal, toItem: self, attribute: .width, multiplier: 1.0, constant: 0)
+			// Blue LED
+			NSLayoutConstraint(item: blueLED, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: blueLED, attribute: .top, relatedBy: .equal, toItem: greenLED, attribute: .bottom, multiplier: 1.0, constant: 10),
+			NSLayoutConstraint(item: blueLED, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 25),
+			NSLayoutConstraint(item: blueLED, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 50),
+			
+			// Red Label
+			NSLayoutConstraint(item: redLabel, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 14),
+			NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: redLabel, attribute: .trailing, multiplier: 1.0, constant: 6),
+			NSLayoutConstraint(item: redLabel, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 40),
+			NSLayoutConstraint(item: redLabel, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 20),
+			
+			// Green Label
+			NSLayoutConstraint(item: greenLabel, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 74),
+			NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: greenLabel, attribute: .trailing, multiplier: 1.0, constant: 6),
+			NSLayoutConstraint(item: greenLabel, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 40),
+			NSLayoutConstraint(item: greenLabel, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 20),
+			
+			// Blue Label
+			NSLayoutConstraint(item: blueLabel, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 134),
+			NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: blueLabel, attribute: .trailing, multiplier: 1.0, constant: 6),
+			NSLayoutConstraint(item: blueLabel, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 40),
+			NSLayoutConstraint(item: blueLabel, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 20)
 		
 		])
-	
+		
 	}
 	
-	required init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
-	
-	func updateGraphs(colourData: [ColourSample]) {
-	
-		graphOne.createSwatches(colourData: colourData)
-	
-	}
-	
+	required public init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
 }
 
-class ColourController: UIViewController {
+class PageThree: UIViewController {
 
-	let infoBar = InfoBar()
-	let imageView = UIImageView()
-	let scrollWindow = ColourScroll()
-	let actionBar = ActionBar()
+	var imageView = UIImageView()
+	var verticalSlider = UISlider()
+	var horizontalSlider = UISlider()
+	var verticalIndicator = UIView()
+	var horizontalIndicator = UIView()
+	var colourOutput = ColourOutput()
+	
+	var setData: Array<UInt8>? = nil
+	var setSize: CGSize? = CGSize(width: 300, height: 200)
+	var setImage: UIImage? = nil
+	
+	var bytesPerRow: Int? = nil
+	var bytesPerPixel: Int? = nil
+	
+	var trackVertical = NSLayoutConstraint()
+	var trackHorizontal = NSLayoutConstraint()
 
 	override func viewDidLoad() {
+		super.viewDidLoad()
 	
-		self.view.backgroundColor = UIColor.red
-		imageView.backgroundColor = UIColor.blue
+		imageView.image = UIImage(named: "Frame")
+	
+		self.view.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.00)
+		imageView.backgroundColor = UIColor(red: 0.30, green: 0.30, blue: 0.30, alpha: 1.00)
+		verticalIndicator.backgroundColor = UIColor(red: 0.94, green: 0.43, blue: 0.13, alpha: 1.00)
+		horizontalIndicator.backgroundColor = UIColor(red: 0.94, green: 0.43, blue: 0.13, alpha: 1.00)
+		
+		verticalSlider.minimumTrackTintColor = UIColor(red: 0.94, green: 0.43, blue: 0.13, alpha: 1.00)
+		verticalSlider.maximumTrackTintColor = UIColor(red: 0.94, green: 0.43, blue: 0.13, alpha: 1.00)
+		horizontalSlider.minimumTrackTintColor = UIColor(red: 0.94, green: 0.43, blue: 0.13, alpha: 1.00)
+		horizontalSlider.maximumTrackTintColor = UIColor(red: 0.94, green: 0.43, blue: 0.13, alpha: 1.00)
+		
+		verticalSlider.transform = CGAffineTransform(rotationAngle: -CGFloat.pi/2)
+		verticalSlider.maximumValue = 1.0
+		verticalSlider.minimumValue = 0.0
+		horizontalSlider.maximumValue = 1.0
+		horizontalSlider.minimumValue = 0.0
+		
+		verticalIndicator.translatesAutoresizingMaskIntoConstraints = false
+		horizontalIndicator.translatesAutoresizingMaskIntoConstraints = false
 		
 		imageView.translatesAutoresizingMaskIntoConstraints = false
-		scrollWindow.translatesAutoresizingMaskIntoConstraints = false
-		actionBar.translatesAutoresizingMaskIntoConstraints = false
+		verticalSlider.translatesAutoresizingMaskIntoConstraints = false
+		horizontalSlider.translatesAutoresizingMaskIntoConstraints = false
+		colourOutput.translatesAutoresizingMaskIntoConstraints = false
+		
+		imageView.addSubview(verticalIndicator)
+		imageView.addSubview(horizontalIndicator)
 		
 		self.view.addSubview(imageView)
-		self.view.addSubview(scrollWindow)
-		self.view.addSubview(actionBar)
-
+		self.view.addSubview(horizontalSlider)
+		self.view.addSubview(verticalSlider)
+		self.view.addSubview(colourOutput)
+		
+		trackVertical = NSLayoutConstraint(item: imageView, attribute: .bottom, relatedBy: .equal, toItem: verticalIndicator, attribute: .bottom, multiplier: 1.0, constant: 0)
+		trackHorizontal = NSLayoutConstraint(item: horizontalIndicator, attribute: .leading, relatedBy: .equal, toItem: imageView, attribute: .leading, multiplier: 1.0, constant: 0)
+		
+		imageView.addConstraints([
+		
+			// Vertical Indicator
+			trackVertical,
+			NSLayoutConstraint(item: verticalIndicator, attribute: .leading, relatedBy: .equal, toItem: imageView, attribute: .leading, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: verticalIndicator, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 1),
+			NSLayoutConstraint(item: verticalIndicator, attribute: .width, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1.0, constant: 0),
+		
+			// Horizontal Indicator
+			trackHorizontal,
+			NSLayoutConstraint(item: horizontalIndicator, attribute: .top, relatedBy: .equal, toItem: imageView, attribute: .top, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: horizontalIndicator, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .height, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: horizontalIndicator, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 1)
+			
+		])
+		
 		self.view.addConstraints([
 		
 			// Image View
-			NSLayoutConstraint(item: imageView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: imageView, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1.0, constant: 60),
-			NSLayoutConstraint(item: self.view, attribute: .trailing, relatedBy: .equal, toItem: imageView, attribute: .trailing, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: imageView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: 50),
+			NSLayoutConstraint(item: imageView, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1.0, constant: 20),
+			NSLayoutConstraint(item: self.view, attribute: .trailing, relatedBy: .equal, toItem: imageView, attribute: .trailing, multiplier: 1.0, constant: 50),
 			NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 0.66, constant: 0),
 			
-			// Scroll Window
-			NSLayoutConstraint(item: scrollWindow, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: scrollWindow, attribute: .top, relatedBy: .equal, toItem: imageView, attribute: .bottom, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self.view, attribute: .trailing, relatedBy: .equal, toItem: scrollWindow, attribute: .trailing, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self.view, attribute: .bottom, relatedBy: .equal, toItem: scrollWindow, attribute: .bottom, multiplier: 1.0, constant: 0),
-		
-			// Action Bar
-			NSLayoutConstraint(item: actionBar, attribute: .centerX, relatedBy: .equal, toItem: self.view, attribute: .centerX, multiplier: 1.0, constant: 0),
-			NSLayoutConstraint(item: self.view, attribute: .bottom, relatedBy: .equal, toItem: actionBar, attribute: .bottom, multiplier: 1.0, constant: 30)
+			// Vertical Slider
+			NSLayoutConstraint(item: verticalSlider, attribute: .width, relatedBy: .equal, toItem: imageView, attribute: .height, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: verticalSlider, attribute: .centerY, relatedBy: .equal, toItem: imageView, attribute: .centerY, multiplier: 1.0, constant: 0),
+            NSLayoutConstraint(item: verticalSlider, attribute: .centerX, relatedBy: .equal, toItem: imageView, attribute: .left, multiplier: 1.0, constant: -25),
+			
+			// Horizontal Slider
+			NSLayoutConstraint(item: horizontalSlider, attribute: .leading, relatedBy: .equal, toItem: imageView, attribute: .leading, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: horizontalSlider, attribute: .top, relatedBy: .equal, toItem: imageView, attribute: .bottom, multiplier: 1.0, constant: 15),
+			NSLayoutConstraint(item: imageView, attribute: .trailing, relatedBy: .equal, toItem: horizontalSlider, attribute: .trailing, multiplier: 1.0, constant: 0),
+			
+			// Colour Output
+			NSLayoutConstraint(item: colourOutput, attribute: .centerX, relatedBy: .equal, toItem: self.view, attribute: .centerX, multiplier: 1.0, constant: 0),
+			NSLayoutConstraint(item: colourOutput, attribute: .top, relatedBy: .equal, toItem: horizontalSlider, attribute: .bottom, multiplier: 1.0, constant: 50),
+			NSLayoutConstraint(item: colourOutput, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 200),
+			NSLayoutConstraint(item: colourOutput, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 200)
 			
 		])
 		
-		actionBar.linkButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(linkPressed)))
+		horizontalSlider.addTarget(self, action: #selector(slideChanged(_:)), for: .valueChanged)
+		verticalSlider.addTarget(self, action: #selector(slideChanged(_:)), for: .valueChanged)
+		
+	}
+	
+	func presentError(errorMessage: String) {
+	
+		let popupAlert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
+		popupAlert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: nil))
+		self.present(popupAlert, animated: true, completion: nil)
 	
 	}
 	
-	@objc func linkPressed() {
-	
-		downloadImage(imageLocation: "http://media.idownloadblog.com/wp-content/uploads/2014/08/Yosemite-4-wallpaper-thumbnail.png", completionHandler: { possibleImage in
+	@objc func slideChanged(_ sender: UISlider!) {
+		
+		trackVertical.constant = CGFloat(verticalSlider.value) * imageView.frame.height - 1
+		trackHorizontal.constant = CGFloat(horizontalSlider.value) * imageView.frame.width - 1
+		
+		if setSize != nil && setData != nil && bytesPerPixel != nil && bytesPerRow != nil {
+		
+			let xCoord = Int(round(Float(setSize!.width - 1) * horizontalSlider.value))
+			let yCoord = Int(round(Float(setSize!.height - 1) - (Float(setSize!.height - 1) * verticalSlider.value)))
+
+			let dataIndex = ((bytesPerRow! * yCoord) + xCoord * bytesPerPixel!)
+
+			let redValue = CGFloat(setData![dataIndex]) / CGFloat(255.0)
+			let greenValue = CGFloat(setData![dataIndex + 1]) / CGFloat(255.0)
+			let blueValue = CGFloat(setData![dataIndex + 2]) / CGFloat(255.0)
 			
-			DispatchQueue.main.async {
-				if possibleImage != nil {
-					self.processImage(newImage: possibleImage!)
+			colourOutput.redLED.lightLayer.fillColor = UIColor(red: redValue, green: 0.0, blue: 0.0, alpha: 1.0).cgColor
+			colourOutput.greenLED.lightLayer.fillColor = UIColor(red: 0.0, green: greenValue, blue: 0.0, alpha: 1.0).cgColor
+			colourOutput.blueLED.lightLayer.fillColor = UIColor(red: 0.0, green: 0.0, blue: blueValue, alpha: 1.0).cgColor
+			colourOutput.outputLayer.fillColor = UIColor(red: redValue, green: greenValue, blue: blueValue, alpha: 1.0).cgColor
+
+			colourOutput.redLabel.text = String(format: "%.2f", redValue)
+			colourOutput.greenLabel.text = String(format: "%.2f", greenValue)
+			colourOutput.blueLabel.text = String(format: "%.2f", blueValue)
+		
+		}
+	}
+	
+}
+
+let CurrentPage = PageThree()
+
+func getImage(file: UIImage) {
+
+	CurrentPage.verticalSlider.isEnabled = false
+	CurrentPage.horizontalSlider.isEnabled = false
+	CurrentPage.verticalIndicator.alpha = 0
+	CurrentPage.horizontalIndicator.alpha = 0
+	
+	if let imageCG = file.cgImage, let imageData = imageCG.dataProvider?.data, let pixelData: UnsafePointer<UInt8> = CFDataGetBytePtr(imageData) {
+		
+		CurrentPage.imageView.image = file
+		CurrentPage.setImage = file
+		CurrentPage.setSize = file.size
+		CurrentPage.bytesPerRow = imageCG.bytesPerRow
+		CurrentPage.bytesPerPixel = imageCG.bitsPerPixel / 8
+		
+		CurrentPage.setData = Array(UnsafeBufferPointer(start: pixelData, count: imageCG.bytesPerRow * Int(file.size.height)))
+		
+		CurrentPage.verticalSlider.isEnabled = true
+		CurrentPage.horizontalSlider.isEnabled = true
+		CurrentPage.verticalIndicator.alpha = 1
+		CurrentPage.horizontalIndicator.alpha = 1
+		
+		CurrentPage.horizontalSlider.setValue(0.4, animated: false)
+		CurrentPage.verticalSlider.setValue(0.4, animated: false)
+		CurrentPage.trackVertical.constant = CGFloat(0.4) * CurrentPage.imageView.frame.height - 1
+		CurrentPage.trackHorizontal.constant = CGFloat(0.4) * CurrentPage.imageView.frame.width - 1
+
+		let xCoord = Int(round(Float(file.size.width - 1) * 0.4))
+		let yCoord = Int(round(Float(file.size.height - 1) - (Float(file.size.height - 1) * 0.4)))
+
+		let dataIndex = ((CurrentPage.bytesPerRow! * yCoord) + xCoord * CurrentPage.bytesPerPixel!)
+
+		let redValue = CGFloat(CurrentPage.setData![dataIndex]) / CGFloat(255.0)
+		let greenValue = CGFloat(CurrentPage.setData![dataIndex + 1]) / CGFloat(255.0)
+		let blueValue = CGFloat(CurrentPage.setData![dataIndex + 2]) / CGFloat(255.0)
+		
+		CurrentPage.colourOutput.redLED.lightLayer.fillColor = UIColor(red: redValue, green: 0.0, blue: 0.0, alpha: 1.0).cgColor
+		CurrentPage.colourOutput.greenLED.lightLayer.fillColor = UIColor(red: 0.0, green: greenValue, blue: 0.0, alpha: 1.0).cgColor
+		CurrentPage.colourOutput.blueLED.lightLayer.fillColor = UIColor(red: 0.0, green: 0.0, blue: blueValue, alpha: 1.0).cgColor
+		CurrentPage.colourOutput.outputLayer.fillColor = UIColor(red: redValue, green: greenValue, blue: blueValue, alpha: 1.0).cgColor
+
+		CurrentPage.colourOutput.redLabel.text = String(format: "%.2f", redValue)
+		CurrentPage.colourOutput.greenLabel.text = String(format: "%.2f", greenValue)
+		CurrentPage.colourOutput.blueLabel.text = String(format: "%.2f", blueValue)
+
+
+	} else {
+		CurrentPage.presentError(errorMessage: "Unable to convert image data. Please try again.")
+	}
+	
+}
+
+func handleDownload(url: String, completion: @escaping(UIImage?, String) -> ()) {
+
+	if let imageURL = URL(string: url) {
+	
+		URLSession.shared.dataTask(with: URLRequest(url: imageURL, timeoutInterval: 30.0)) { returnData, returnResponse, returnError in
+	
+			if returnError == nil {
+			
+				if let finalData = returnData, let finalImage = UIImage(data: finalData) {
+					completion(finalImage, "Successful download")
 				} else {
-					print("Bad image")
+					completion(nil, "Problem converting web data to image.")
 				}
+			} else {
+				completion(nil, "Download task returned error: \(returnError.debugDescription).")
 			}
 
-		})
-	
+		}.resume()
+
+	} else {
+		completion(nil, "Invalid URL")
 	}
-	
-	func processImage(newImage: UIImage) {
-	
-		print("Process Start")
-	
-		self.imageView.image = newImage
+
+}
+
+func downloadImage(url: String) {
+
+	CurrentPage.verticalSlider.isEnabled = false
+	CurrentPage.horizontalSlider.isEnabled = false
+	CurrentPage.verticalIndicator.alpha = 0
+	CurrentPage.horizontalIndicator.alpha = 0
+
+	handleDownload(url: url, completion: { returnedImage, returnedString in
+		DispatchQueue.main.async {
+
+			if returnedImage != nil {
 		
-		if let pixelCFData = newImage.cgImage?.dataProvider?.data, let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelCFData) {
-		
-			var colourData: [ColourSample] = []
-		
-			for _ in 0...7 {
-		
-				let xCoord = Int(arc4random_uniform(UInt32(newImage.size.width)))
-				let yCoord = Int(arc4random_uniform(UInt32(newImage.size.height)))
-				let testPoint = CGPoint(x: xCoord, y: yCoord)
-				let dataIndex = ((Int(newImage.size.width) * yCoord) + xCoord) * 4
+				getImage(file: returnedImage!)
 				
-				let r = CGFloat(data[dataIndex]) / CGFloat(255.0)
-        		let g = CGFloat(data[dataIndex+1]) / CGFloat(255.0)
-        		let b = CGFloat(data[dataIndex+2]) / CGFloat(255.0)
-        		let a = CGFloat(data[dataIndex+3]) / CGFloat(255.0)
-			
-				colourData.append(ColourSample(redSample: r, greenSample: g, blueSample: b))
-			
+			} else {
+				CurrentPage.presentError(errorMessage: returnedString)
 			}
-			
-			print("Process Finish")
-			
-			scrollWindow.updateGraphs(colourData: colourData)
-		
+
 		}
-		
-	}
-	
-	func downloadImage(imageLocation: String, completionHandler: @escaping(UIImage?) ->()) {
-		
-		print("Download Start")
-		
-		if let imageURL = URL(string: imageLocation) {
-		
-			URLSession.shared.dataTask(with: URLRequest(url: imageURL, timeoutInterval: 30.0)) { returnData, returnResponse, returnError in
-		
-				if returnError == nil {
-					if let finalData = returnData, let finalImage = UIImage(data: finalData) {
-						print("Download Finish")
-						completionHandler(finalImage)
-					}
-				} else {
-					completionHandler(nil)
-				}
-
-			}.resume()
-
-		} else {
-			completionHandler(nil)
-		}
-
-	}
+	})
 
 }
 
 PlaygroundPage.current.needsIndefiniteExecution = true
-PlaygroundPage.current.liveView = ColourController()
-
-
-
+PlaygroundPage.current.liveView = CurrentPage
